@@ -1,5 +1,8 @@
 <div class="posts-container">
-  <h1>Blog Posts</h1>
+  <div class="posts-header">
+    <h1>Blog Posts</h1>
+    <button class="create-post-btn" [routerLink]="['/posts/create']">Create New Post</button>
+  </div>
 
   <div class="post-list">
     @for (post of posts; track post.id) {
@@ -15,12 +18,15 @@
             <span class="tag">{{ tag }}</span>
           }
         </div>
+        <div class="post-actions">
+          <button class="edit-btn" [routerLink]="['/posts/edit', post.id]">Edit Post</button>
+        </div>
       </div>
     } @empty {
       <div class="no-posts">
         <p>No blog posts available.</p>
+        <button class="create-post-btn" [routerLink]="['/posts/create']">Create Your First Post</button>
       </div>
     }
   </div>
 </div>
-

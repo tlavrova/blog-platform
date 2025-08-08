@@ -1,0 +1,96 @@
+<div class="post-editor-container">
+  <h2>{{ isEditMode ? 'Edit' : 'Create' }} Blog Post</h2>
+
+  <form [formGroup]="postForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input
+        type="text"
+        id="title"
+        formControlName="title"
+        placeholder="Enter post title">
+      @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
+        <div class="error-message">
+          @if (postForm.get('title')?.errors?.['required']) {
+            <span>Title is required</span>
+          } @else if (postForm.get('title')?.errors?.['minlength']) {
+            <span>Title must be at least 3 characters</span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="author">Author</label>
+      <input
+        type="text"
+        id="author"
+        formControlName="author"
+        placeholder="Enter author name">
+      @if (postForm.get('author')?.invalid && postForm.get('author')?.touched) {
+        <div class="error-message">
+          <span>Author name is required</span>
+        </div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="content">Content</label>
+      <textarea
+        id="content"
+        formControlName="content"
+        rows="10"
+        placeholder="Write your blog post content here"></textarea>
+      @if (postForm.get('content')?.invalid && postForm.get('content')?.touched) {
+        <div class="error-message">
+          @if (postForm.get('content')?.errors?.['required']) {
+            <span>Content is required</span>
+          } @else if (postForm.get('content')?.errors?.['minlength']) {
+            <span>Content must be at least 10 characters</span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="form-group" formArrayName="tags">
+      <label>Tags</label>
+      <div class="tags-container">
+        @for (control of tagsArray.controls; let i = $index; track i) {
+          <div class="tag-input" [formGroupName]="i">
+            <input
+              type="text"
+              formControlName="tag"
+              placeholder="Enter tag">
+            <button
+              type="button"
+              class="remove-tag-btn"
+              (click)="removeTag(i)">
+              ×
+            </button>
+          </div>
+        }
+      </div>
+      <button
+        type="button"
+        class="add-tag-btn"
+        (click)="addTag()">
+        + Add Tag
+      </button>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="cancel-btn"
+        [routerLink]="['/posts']">
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="submit-btn"
+        [disabled]="postForm.invalid">
+        {{ submitButtonText }}
+      </button>
+    </div>
+  </form>
+</div>
