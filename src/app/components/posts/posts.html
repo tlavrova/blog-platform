@@ -1,0 +1,26 @@
+<div class="posts-container">
+  <h1>Blog Posts</h1>
+
+  <div class="post-list">
+    @for (post of posts; track post.id) {
+      <div class="post-card">
+        <h2 class="post-title">{{ post.title }}</h2>
+        <div class="post-meta">
+          <span class="post-author">By: {{ post.author }}</span>
+          <span class="post-date">Published: {{ post.publishDate | date:'mediumDate' }}</span>
+        </div>
+        <p class="post-content">{{ post.content }}</p>
+        <div class="post-tags">
+          @for (tag of post.tags; track tag) {
+            <span class="tag">{{ tag }}</span>
+          }
+        </div>
+      </div>
+    } @empty {
+      <div class="no-posts">
+        <p>No blog posts available.</p>
+      </div>
+    }
+  </div>
+</div>
+
