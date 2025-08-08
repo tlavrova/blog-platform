@@ -1,0 +1,55 @@
+<div class="post-container" [ngClass]="{'preview-mode': showPreview}">
+  @if (post && !notFound) {
+    <article class="post">
+      <div class="post-header">
+        <h2 class="post-title">
+          @if (showPreview) {
+            <a [routerLink]="['/post', post.id]">{{ post.title }}</a>
+          } @else {
+            {{ post.title }}
+          }
+        </h2>
+        <div class="post-meta">
+          <span class="post-author">By: {{ post.author }}</span>
+          <span class="post-date">Published: {{ post.publishDate | date:(showPreview ? 'mediumDate' : 'longDate') }}</span>
+        </div>
+      </div>
+
+      <div class="post-tags">
+        @for (tag of post.tags; track tag) {
+          <span class="tag">{{ tag }}</span>
+        }
+      </div>
+
+      <div class="post-content">
+        @if (showPreview) {
+          <p>{{ getContentPreview(post.content) }}</p>
+        } @else {
+          @for (paragraph of post.content.split('\n\n'); track paragraph) {
+            <p>{{ paragraph }}</p>
+          }
+        }
+      </div>
+
+      <div class="post-actions">
+        @if (showPreview) {
+          <button class="view-btn" [routerLink]="['/post', post.id]">Read More</button>
+          <button class="edit-btn" [routerLink]="['/posts/edit', post.id]">Edit Post</button>
+        } @else {
+          <button class="back-btn" [routerLink]="['/posts']">Back to Posts</button>
+          <button class="edit-btn" [routerLink]="['/posts/edit', post.id]">Edit Post</button>
+        }
+      </div>
+    </article>
+  } @else if (notFound) {
+    <div class="post-not-found">
+      <h2>Post Not Found</h2>
+      <p>The blog post you're looking for doesn't exist or has been removed.</p>
+      <button class="back-btn" [routerLink]="['/posts']">Back to Posts</button>
+    </div>
+  } @else {
+    <div class="loading">
+      <p>Loading post...</p>
+    </div>
+  }
+</div>

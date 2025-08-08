@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Post } from '../../models/post.model';
-import {RouterLink} from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { Post as PostModel } from '../models/post.model';
+import { Post } from '../post/post';
 
 @Component({
-  selector: 'app-posts',
+  selector: 'app-post-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './posts.html',
-  styleUrl: './posts.css'
+  imports: [CommonModule, RouterLink, Post],
+  templateUrl: './post-list.html',
+  styleUrl: './post-list.css'
 })
-export class Posts implements OnInit {
-  posts: Post[] = [];
+export class PostList implements OnInit {
+  posts: PostModel[] = [];
 
   constructor() {}
 
@@ -20,7 +21,7 @@ export class Posts implements OnInit {
     this.posts = this.getMockPosts();
   }
 
-  getMockPosts(): Post[] {
+  getMockPosts(): PostModel[] {
     return [
       {
         id: 1,
