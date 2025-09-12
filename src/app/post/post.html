@@ -40,6 +40,9 @@
           <button class="edit-btn" [routerLink]="['/posts/edit', post.id]">Edit Post</button>
         }
       </div>
+
+      <!-- Comments Section -->
+      <app-comment></app-comment>
     </article>
   } @else if (notFound) {
     <div class="post-not-found">

@@ -1,0 +1,44 @@
+.comments {
+  border: 1px solid #ddd;
+  padding: 1em;
+  margin-top: 2em;
+  border-radius: 4px;
+  background: #fafafa;
+}
+.comments h3 {
+  margin-top: 0;
+}
+.comments ul {
+  list-style: none;
+  padding: 0;
+}
+.comments li {
+  margin-bottom: 1em;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5em;
+}
+.comments form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  margin-top: 1em;
+}
+.comments input,
+.comments textarea {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+.comments button {
+  align-self: flex-start;
+  padding: 0.5em 1em;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.comments button:hover {
+  background: #1565c0;
+}
+

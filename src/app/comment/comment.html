@@ -1,0 +1,16 @@
+<div class="comments">
+  <h3>Comments</h3>
+  <ul>
+    @for (comment of comments; track comment.id) {
+      <li>
+        <strong>{{comment.author}}</strong> <em>{{comment.createdAt | date:'short'}}</em>
+        <p>{{comment.content}}</p>
+      </li>
+    }
+  </ul>
+  <form (submit)="addComment(); $event.preventDefault();">
+    <input type="text" [(ngModel)]="newComment.author" placeholder="Your name" required>
+    <textarea [(ngModel)]="newComment.content" placeholder="Your comment" required></textarea>
+    <button type="submit">Add Comment</button>
+  </form>
+</div>
