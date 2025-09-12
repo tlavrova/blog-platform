@@ -38,7 +38,7 @@ testem.log
 /typings
 
 # Environment files
-src/environments/environment.ts
+# src/environments/environment.ts (removed from ignore for deployment)
 
 # System files
 .DS_Store
