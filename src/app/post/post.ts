@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Post as PostModel } from '../models/post.model';
 import { CommentComponent } from '../comment/comment';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-post',
   standalone: true,
-  imports: [CommonModule, RouterLink, CommentComponent],
+  imports: [CommonModule, RouterLink, CommentComponent, FormsModule],
   templateUrl: './post.html',
   styleUrl: './post.css'
 })

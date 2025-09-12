@@ -8,9 +8,9 @@
       </li>
     }
   </ul>
-  <form (submit)="addComment(); $event.preventDefault();">
-    <input type="text" [(ngModel)]="newComment.author" placeholder="Your name" required>
-    <textarea [(ngModel)]="newComment.content" placeholder="Your comment" required></textarea>
+  <form>
+    <input type="text" [(ngModel)]="newComment.author" name="author" placeholder="Your name" required>
+    <textarea [(ngModel)]="newComment.content" name="content" placeholder="Your comment" required></textarea>
     <button type="submit">Add Comment</button>
   </form>
 </div>
