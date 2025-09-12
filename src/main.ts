@@ -5,7 +5,7 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA7OpAUDfF-Oz40UZvZLjx8gkAB9xQQkWc",
+  apiKey: "", //publicity problem on github
   authDomain: "blog-platform-6f6f6.firebaseapp.com",
   projectId: "blog-platform-6f6f6",
   storageBucket: "blog-platform-6f6f6.appspot.com",
