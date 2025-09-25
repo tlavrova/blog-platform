@@ -43,7 +43,7 @@
         }
       </div>
 
-      <app-comment [postId]="post.id"></app-comment>
+      @if (!showPreview) { <app-comment [postId]="post.id"></app-comment> }
     </article>
   } @else if (notFound) {
     <div class="post-not-found">

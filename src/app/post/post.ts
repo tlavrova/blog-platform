@@ -6,7 +6,7 @@ import { CommentComponent } from '../comment/comment';
 import { FormsModule } from '@angular/forms';
 import { PostService } from '../services/post.service';
 import { CommentService } from '../services/comment.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-post',
@@ -16,11 +16,12 @@ import { Subscription } from 'rxjs';
   styleUrl: './post.css'
 })
 export class Post implements OnInit, OnDestroy {
-  @Input() post?: PostModel;
+  @Input() post?: PostModel; // If provided (preview mode) we don't fetch
   @Input() showPreview = false;
 
   notFound = false;
   private routeSub?: Subscription;
+  private postSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,7 +31,6 @@ export class Post implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Only fetch post from route if not provided via input
     if (!this.post) {
       this.loadPostFromRoute();
     }
@@ -38,43 +38,43 @@ export class Post implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.postSub?.unsubscribe();
   }
 
   loadPostFromRoute(): void {
-    // Get the post id from the current route
     this.routeSub = this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        const found = this.postService.getPostById(+id);
-        if (found) {
-          this.post = found;
-          this.notFound = false;
-        } else {
-          this.notFound = true;
-        }
+        this.postSub?.unsubscribe();
+        this.postSub = this.postService.getPostById(id).subscribe(p => {
+          if (p) {
+            this.post = p;
+            this.notFound = false;
+          } else {
+            this.notFound = true;
+          }
+        });
       } else {
-        // No id provided, redirect to posts list
         this.router.navigate(['/posts']);
       }
     });
   }
 
-  deletePost(): void {
+  async deletePost(): Promise<void> {
     if (!this.post) return;
     const confirmed = window.confirm('Are you sure you want to delete this post?');
-    if (confirmed) {
-      // delete related comments first
-      this.commentService.deleteCommentsForPost(this.post.id);
-      this.postService.deletePost(this.post.id);
+    if (!confirmed) return;
+    try {
+      await this.commentService.deleteCommentsForPost(this.post.id);
+      await this.postService.deletePost(this.post.id);
       this.router.navigate(['/posts']);
+    } catch (err) {
+      console.error('Failed to delete post', err);
     }
   }
 
   getContentPreview(content: string): string {
     const maxLength = 150;
-    if (content.length <= maxLength) {
-      return content;
-    }
-    return content.substring(0, maxLength) + '...';
+    return content.length <= maxLength ? content : content.substring(0, maxLength) + '...';
   }
 }

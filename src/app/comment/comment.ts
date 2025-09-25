@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './comment.css'
 })
 export class CommentComponent implements OnInit, OnDestroy {
-  @Input() postId!: number; // required
+  @Input() postId!: string; // Firestore document ID
   comments: Comment[] = [];
   newComment: Partial<Comment> = { author: '', content: '' };
   private sub?: Subscription;
@@ -30,16 +30,15 @@ export class CommentComponent implements OnInit, OnDestroy {
 
   addComment() {
     if (!this.postId || !this.newComment.author || !this.newComment.content) return;
-    this.commentService.addComment({
-      postId: this.postId,
-      author: this.newComment.author,
-      content: this.newComment.content
-    });
-    this.newComment = { author: '', content: '' };
+    this.commentService.addComment(this.postId, this.newComment.author, this.newComment.content)
+      .then(() => {
+        this.newComment = { author: '', content: '' };
+      })
+      .catch(err => console.error('Failed to add comment', err));
   }
 
-  deleteComment(id: number) {
-    this.commentService.deleteComment(id);
+  deleteComment(id: string) {
+    this.commentService.deleteComment(id).catch(err => console.error('Failed to delete comment', err));
   }
 
   ngOnDestroy(): void {

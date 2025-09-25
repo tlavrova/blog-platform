@@ -1,9 +1,8 @@
 export interface Post {
-  id: number;
+  id: string; // Firestore document ID
   title: string;
   content: string;
   author: string;
-  publishDate: Date;
+  publishDate?: Date; // optional while waiting for serverTimestamp
   tags?: string[];
 }
-

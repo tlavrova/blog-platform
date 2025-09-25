@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } fr
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Post } from '../models/post.model';
 import { PostService } from '../services/post.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-post-editor',
@@ -15,7 +16,7 @@ import { PostService } from '../services/post.service';
 export class PostEditor implements OnInit {
   postForm: FormGroup;
   isEditMode = false;
-  postId: number | null = null;
+  postId: string | null = null;
   submitButtonText = 'Create Post';
 
   constructor(
@@ -41,7 +42,7 @@ export class PostEditor implements OnInit {
       const id = params.get('id');
       if (id) {
         this.isEditMode = true;
-        this.postId = +id;
+        this.postId = id; // Firestore doc id (string)
         this.submitButtonText = 'Update Post';
         this.loadPostData(this.postId);
       }
@@ -71,40 +72,36 @@ export class PostEditor implements OnInit {
   }
 
   // Load post data when in edit mode
-  loadPostData(id: number): void {
-    const post = this.postService.getPostById(id);
+  loadPostData(id: string): void {
+    this.postService.getPostById(id).pipe(take(1)).subscribe(post => {
+      if (post) {
+        // Clear existing tags
+        while (this.tagsArray.length) {
+          this.tagsArray.removeAt(0);
+        }
 
-    if (post) {
-      // Clear existing tags
-      while (this.tagsArray.length) {
-        this.tagsArray.removeAt(0);
-      }
+        // Add each tag from the post
+        if (post.tags && post.tags.length) {
+          post.tags.forEach(tag => this.tagsArray.push(this.fb.group({ tag: [tag, Validators.required] })));
+        } else {
+          // If no tags, add an empty one
+          this.addTag();
+        }
 
-      // Add each tag from the post
-      if (post.tags && post.tags.length > 0) {
-        post.tags.forEach(tag => {
-          this.tagsArray.push(this.fb.group({
-            tag: [tag, Validators.required]
-          }));
+        // Update form values
+        this.postForm.patchValue({
+          title: post.title,
+          content: post.content,
+          author: post.author
         });
       } else {
-        // If no tags, add an empty one
-        this.addTag();
+        // Post not found, redirect to post list
+        this.router.navigate(['/posts']);
       }
-
-      // Update form values
-      this.postForm.patchValue({
-        title: post.title,
-        content: post.content,
-        author: post.author
-      });
-    } else {
-      // Post not found, redirect to post list
-      this.router.navigate(['/posts']);
-    }
+    });
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.postForm.invalid) return;
 
     const formValues = this.postForm.value;
@@ -112,25 +109,26 @@ export class PostEditor implements OnInit {
       .map((tagGroup: { tag: string }) => tagGroup.tag)
       .filter((tag: string) => tag && tag.trim() !== '');
 
-    if (this.isEditMode && this.postId != null) {
-      this.postService.updatePost(this.postId, {
-        title: formValues.title,
-        content: formValues.content,
-        author: formValues.author,
-        tags
-      });
-      console.log('Updated post', this.postId);
-    } else {
-      const created = this.postService.createPost({
-        title: formValues.title,
-        content: formValues.content,
-        author: formValues.author,
-        tags
-      });
-      this.postId = created.id;
-      console.log('Created post', created.id);
+    try {
+      if (this.isEditMode && this.postId) {
+        await this.postService.updatePost(this.postId, {
+          title: formValues.title,
+          content: formValues.content,
+          author: formValues.author,
+          tags
+        });
+      } else {
+        const newId = await this.postService.createPost({
+          title: formValues.title,
+          content: formValues.content,
+          author: formValues.author,
+          tags
+        });
+        this.postId = newId;
+      }
+      this.router.navigate(['/posts']);
+    } catch (err) {
+      console.error('Failed to save post', err);
     }
-
-    this.router.navigate(['/posts']);
   }
 }

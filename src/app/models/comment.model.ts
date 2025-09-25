@@ -1,7 +1,7 @@
 export interface Comment {
-  id: number;
-  postId: number; // new field to associate with a Post
+  id: string; // Firestore document ID
+  postId: string; // associated Post document ID
   author: string;
   content: string;
-  createdAt: Date;
+  createdAt?: Date; // optional until resolved from serverTimestamp
 }
