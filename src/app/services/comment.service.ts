@@ -1,25 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, query, where, orderBy, deleteDoc, doc, serverTimestamp, getDocs } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc, query, where, orderBy, deleteDoc, doc, serverTimestamp, getDocs, CollectionReference } from '@angular/fire/firestore';
 import { Observable, map } from 'rxjs';
 import { Comment } from '../models/comment.model';
 
 @Injectable({ providedIn: 'root' })
 export class CommentService {
-  private commentsCol: any; // initialized in constructor
+  constructor(private firestore: Firestore) {}
 
-  constructor(private firestore: Firestore) {
-    this.commentsCol = collection(this.firestore, 'comments');
+  private commentsCollection(): CollectionReference {
+    return collection(this.firestore, 'comments') as CollectionReference;
   }
 
   getCommentsForPost(postId: string): Observable<Comment[]> {
-    const q = query(this.commentsCol, where('postId', '==', postId), orderBy('createdAt', 'asc'));
+    const q = query(this.commentsCollection(), where('postId', '==', postId), orderBy('createdAt', 'asc'));
     return (collectionData(q, { idField: 'id' } as any) as Observable<any[]>).pipe(
       map((rows: any[]) => rows.map(r => this.mapComment(r)))
     );
   }
 
   addComment(postId: string, author: string, content: string): Promise<string> {
-    return addDoc(this.commentsCol, {
+    return addDoc(this.commentsCollection(), {
       postId,
       author,
       content,
@@ -33,7 +33,7 @@ export class CommentService {
   }
 
   async deleteCommentsForPost(postId: string): Promise<void> {
-    const q = query(this.commentsCol, where('postId', '==', postId));
+    const q = query(this.commentsCollection(), where('postId', '==', postId));
     const snapshot = await getDocs(q);
     const deletions: Promise<void>[] = [];
     snapshot.forEach(d => {

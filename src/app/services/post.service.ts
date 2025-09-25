@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, docData, updateDoc, deleteDoc, serverTimestamp, DocumentReference, query, orderBy } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc, doc, docData, updateDoc, deleteDoc, serverTimestamp, DocumentReference, query, orderBy, CollectionReference } from '@angular/fire/firestore';
 import { Observable, map } from 'rxjs';
 import { Post } from '../models/post.model';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
-  private postsCol: any; // initialized in constructor
+  constructor(private firestore: Firestore) {}
 
-  constructor(private firestore: Firestore) {
-    this.postsCol = collection(this.firestore, 'posts');
+  private postsCollection(): CollectionReference {
+    return collection(this.firestore, 'posts') as CollectionReference;
   }
 
   getPosts(): Observable<Post[]> {
-    // order by publishDate descending (may require composite index when combined with other filters later)
-    const q = query(this.postsCol, orderBy('publishDate', 'desc'));
+    const q = query(this.postsCollection(), orderBy('publishDate', 'desc'));
     return (collectionData(q, { idField: 'id' } as any) as Observable<any[]>).pipe(
       map((docs: any[]) => docs.map(d => this.mapPost(d)))
     );
@@ -27,7 +26,7 @@ export class PostService {
   }
 
   async createPost(data: Omit<Post, 'id' | 'publishDate'>): Promise<string> {
-    const docRef: DocumentReference = await addDoc(this.postsCol, {
+    const docRef: DocumentReference = await addDoc(this.postsCollection(), {
       title: data.title,
       content: data.content,
       author: data.author,
