@@ -1,29 +1,48 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgIf } from '@angular/common';
 import { Comment } from '../models/comment.model';
+import { CommentService } from '../services/comment.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-comment',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, NgIf],
   templateUrl: './comment.html',
   styleUrl: './comment.css'
 })
-export class CommentComponent {
+export class CommentComponent implements OnInit, OnDestroy {
+  @Input() postId!: number; // required
   comments: Comment[] = [];
   newComment: Partial<Comment> = { author: '', content: '' };
+  private sub?: Subscription;
+
+  constructor(private commentService: CommentService) {}
+
+  ngOnInit(): void {
+    if (this.postId == null) {
+      console.warn('CommentComponent initialized without a postId');
+      return;
+    }
+    this.sub = this.commentService.getCommentsForPost(this.postId).subscribe(list => this.comments = list);
+  }
 
   addComment() {
-    if (this.newComment.author && this.newComment.content) {
-      const comment: Comment = {
-        id: Date.now(),
-        author: this.newComment.author!,
-        content: this.newComment.content!,
-        createdAt: new Date()
-      };
-      this.comments.push(comment);
-      this.newComment = { author: '', content: '' };
-    }
+    if (!this.postId || !this.newComment.author || !this.newComment.content) return;
+    this.commentService.addComment({
+      postId: this.postId,
+      author: this.newComment.author,
+      content: this.newComment.content
+    });
+    this.newComment = { author: '', content: '' };
+  }
+
+  deleteComment(id: number) {
+    this.commentService.deleteComment(id);
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 }

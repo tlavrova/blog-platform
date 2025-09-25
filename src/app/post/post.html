@@ -35,14 +35,15 @@
         @if (showPreview) {
           <button class="view-btn" [routerLink]="['/post', post.id]">Read More</button>
           <button class="edit-btn" [routerLink]="['/posts/edit', post.id]">Edit Post</button>
+          <button class="delete-btn" (click)="deletePost()">Delete</button>
         } @else {
           <button class="back-btn" [routerLink]="['/posts']">Back to Posts</button>
           <button class="edit-btn" [routerLink]="['/posts/edit', post.id]">Edit Post</button>
+          <button class="delete-btn" (click)="deletePost()">Delete</button>
         }
       </div>
 
-      <!-- Comments Section Temporarily Removed -->
-      <app-comment></app-comment>
+      <app-comment [postId]="post.id"></app-comment>
     </article>
   } @else if (notFound) {
     <div class="post-not-found">

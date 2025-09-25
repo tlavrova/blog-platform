@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Post } from '../models/post.model';
+import { PostService } from '../services/post.service';
 
 @Component({
   selector: 'app-post-editor',
@@ -20,7 +21,8 @@ export class PostEditor implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private postService: PostService
   ) {
     this.postForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -70,21 +72,7 @@ export class PostEditor implements OnInit {
 
   // Load post data when in edit mode
   loadPostData(id: number): void {
-    // In a real app, this would come from a service
-    // For now, we'll use mock data as a placeholder
-    const mockPosts: Post[] = [
-      {
-        id: 1,
-        title: 'Getting Started with Angular',
-        content: 'Angular is a platform for building mobile and desktop web applications...',
-        author: 'Jane Doe',
-        publishDate: new Date('2025-07-15'),
-        tags: ['Angular', 'Web Development']
-      },
-      // Add more mock posts as needed
-    ];
-
-    const post = mockPosts.find(p => p.id === id);
+    const post = this.postService.getPostById(id);
 
     if (post) {
       // Clear existing tags
@@ -117,28 +105,32 @@ export class PostEditor implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.postForm.valid) {
-      const formValues = this.postForm.value;
+    if (this.postForm.invalid) return;
 
-      // Extract tag values from the tag form groups and filter out empty tags
-      const tags = formValues.tags
-        .map((tagGroup: { tag: string }) => tagGroup.tag)
-        .filter((tag: string) => tag && tag.trim() !== '');
+    const formValues = this.postForm.value;
+    const tags = formValues.tags
+      .map((tagGroup: { tag: string }) => tagGroup.tag)
+      .filter((tag: string) => tag && tag.trim() !== '');
 
-      const post: Post = {
-        id: this.isEditMode && this.postId ? this.postId : Date.now(), // generate ID for new posts
+    if (this.isEditMode && this.postId != null) {
+      this.postService.updatePost(this.postId, {
         title: formValues.title,
         content: formValues.content,
         author: formValues.author,
-        publishDate: new Date(),
-        tags: tags
-      };
-
-      // In a real app, we would save the post via a service
-      console.log('Saving post:', post);
-
-      // Navigate back to posts list
-      this.router.navigate(['/posts']);
+        tags
+      });
+      console.log('Updated post', this.postId);
+    } else {
+      const created = this.postService.createPost({
+        title: formValues.title,
+        content: formValues.content,
+        author: formValues.author,
+        tags
+      });
+      this.postId = created.id;
+      console.log('Created post', created.id);
     }
+
+    this.router.navigate(['/posts']);
   }
 }

@@ -5,12 +5,15 @@
       <li>
         <strong>{{comment.author}}</strong> <em>{{comment.createdAt | date:'short'}}</em>
         <p>{{comment.content}}</p>
+        <button type="button" (click)="deleteComment(comment.id)">Delete</button>
       </li>
+    } @empty {
+      <li><em>No comments yet. Be the first to comment.</em></li>
     }
   </ul>
-  <form>
+  <form (ngSubmit)="addComment()" #commentForm="ngForm">
     <input type="text" [(ngModel)]="newComment.author" name="author" placeholder="Your name" required>
     <textarea [(ngModel)]="newComment.content" name="content" placeholder="Your comment" required></textarea>
-    <button type="submit">Add Comment</button>
+    <button type="submit" [disabled]="!newComment.author || !newComment.content">Add Comment</button>
   </form>
 </div>
