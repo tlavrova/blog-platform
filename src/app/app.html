@@ -5,6 +5,14 @@
       <nav>
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
         <a routerLink="/posts" routerLinkActive="active">Blog</a>
+        <ng-container *ngIf="user$ | async as user; else loggedOut">
+          <span class="user-greeting">Hi {{ user.displayName || user.email }}</span>
+          <button type="button" class="logout-btn" (click)="logout()">Logout</button>
+        </ng-container>
+        <ng-template #loggedOut>
+          <a routerLink="/login" routerLinkActive="active">Login</a>
+          <a routerLink="/register" routerLinkActive="active">Register</a>
+        </ng-template>
       </nav>
     </div>
   </header>
